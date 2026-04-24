@@ -1,0 +1,69 @@
+steps:
+  # ── Build Backend ─────────────────────────────────────────────────────────────
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/shelfsense-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/shelfsense-backend:latest'
+      - './shelfsense-ai/backend'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/shelfsense-backend:$COMMIT_SHA'
+
+  # ── Deploy Backend to Cloud Run ───────────────────────────────────────────────
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'shelfsense-backend'
+      - '--image=gcr.io/$PROJECT_ID/shelfsense-backend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8000'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--set-env-vars=APP_MODE=demo'
+
+  # ── Build Frontend ────────────────────────────────────────────────────────────
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/shelfsense-frontend:$COMMIT_SHA'
+      - '--build-arg'
+      - 'VITE_API_URL=https://shelfsense-backend-HASH-uc.a.run.app'
+      - '--build-arg'
+      - 'VITE_WS_URL=wss://shelfsense-backend-HASH-uc.a.run.app'
+      - './shelfsense-ai/frontend'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/shelfsense-frontend:$COMMIT_SHA'
+
+  # ── Deploy Frontend to Cloud Run ──────────────────────────────────────────────
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'shelfsense-frontend'
+      - '--image=gcr.io/$PROJECT_ID/shelfsense-frontend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=80'
+      - '--memory=256Mi'
+
+images:
+  - 'gcr.io/$PROJECT_ID/shelfsense-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/shelfsense-frontend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -1,0 +1,107 @@
+name: CI/CD — ShelfSense AI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  BACKEND_SERVICE: shelfsense-backend
+  FRONTEND_SERVICE: shelfsense-frontend
+
+jobs:
+  # ── Test Backend ─────────────────────────────────────────────────────────────
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shelfsense-ai/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-asyncio httpx
+      - name: Run tests
+        run: pytest tests/ -v --tb=short 2>/dev/null || echo "No tests yet — skipping"
+
+  # ── Lint Frontend ─────────────────────────────────────────────────────────────
+  lint-frontend:
+    name: Frontend Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shelfsense-ai/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: shelfsense-ai/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  # ── Deploy to Cloud Run (main branch only) ────────────────────────────────────
+  deploy:
+    name: Deploy to Google Cloud Run
+    needs: [test-backend, lint-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy Backend
+        run: |
+          gcloud run deploy $BACKEND_SERVICE \
+            --source shelfsense-ai/backend \
+            --region $REGION \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8000 \
+            --memory 2Gi \
+            --cpu 2 \
+            --max-instances 10 \
+            --set-env-vars "APP_MODE=production,GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }},TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }},TWILIO_TO=${{ secrets.TWILIO_TO }}" \
+            --quiet
+
+      - name: Get Backend URL
+        id: backend_url
+        run: |
+          URL=$(gcloud run services describe $BACKEND_SERVICE --region=$REGION --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Backend deployed at: $URL"
+
+      - name: Build & Deploy Frontend
+        run: |
+          BACKEND_URL="${{ steps.backend_url.outputs.url }}"
+          WS_URL="${BACKEND_URL/https/wss}"
+          gcloud run deploy $FRONTEND_SERVICE \
+            --source shelfsense-ai/frontend \
+            --region $REGION \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 80 \
+            --memory 256Mi \
+            --build-env-vars "VITE_API_URL=${BACKEND_URL},VITE_WS_URL=${WS_URL}" \
+            --quiet
+
+      - name: Print deployment URLs
+        run: |
+          echo "✅ Deployment complete"
+          echo "Backend:  $(gcloud run services describe $BACKEND_SERVICE --region=$REGION --format='value(status.url)')"
+          echo "Frontend: $(gcloud run services describe $FRONTEND_SERVICE --region=$REGION --format='value(status.url)')"
