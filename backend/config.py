@@ -11,7 +11,7 @@ import os
 
 class Settings(BaseSettings):
     # ── Core ──────────────────────────────────────────────────────────────
-    app_mode: str = Field(default="demo", env="APP_MODE")  # "demo" | "production"
+    app_mode: str = Field(default="production", env="APP_MODE")  # "demo" | "production"
 
     # ── Grid ──────────────────────────────────────────────────────────────
     grid_rows: int = Field(default=4, env="GRID_ROWS")

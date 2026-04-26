@@ -85,7 +85,7 @@ function InsightsPanel({ insights }) {
           <Brain className="w-5 h-5 text-primary-500" />
           AI Insights
         </h3>
-        <span className="badge badge-teal">Gemini</span>
+        <span className="badge badge-teal">Business Intelligence</span>
       </div>
       <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-surface-50 rounded-xl p-3 border border-surface-200">
         {insights || 'Generating insights...'}
@@ -186,9 +186,9 @@ function ControlsPanel({ cameraActive, isDemoMode, wsStatus, onCameraToggle, onM
         <div className="flex items-center justify-between p-3 rounded-xl bg-surface-50 border border-surface-200">
           <div>
             <p className="text-sm font-semibold text-navy-500">
-              {isDemoMode ? 'Demo Mode' : 'Production Mode'}
+              {isDemoMode ? 'Simulation Active' : 'Live Monitoring'}
             </p>
-            <p className="text-xs text-slate-500">{isDemoMode ? 'Fast, simulated' : 'Stable, real-world'}</p>
+            <p className="text-xs text-slate-500">{isDemoMode ? 'Fast, predictive testing' : 'High-stability CCTV feed'}</p>
           </div>
           <button
             onClick={onModeToggle}

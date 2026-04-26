@@ -16,7 +16,7 @@
 
 Retailers lose billions annually due to empty shelves, poor inventory tracking, and manual stock checks. Traditional systems rely on human walkthroughs, RFID tags, or weight sensors — expensive, error-prone, and non-real-time.
 
-**ShelfSense AI** solves this with a camera + AI-first approach: zero hardware cost, real-time detection, and actionable insights delivered to your phone via WhatsApp.
+**ShelfSense AI** solves this with an Enterprise-grade camera + AI-first approach: zero hardware cost, real-time edge detection, and actionable intelligence delivered via a secure dashboard and WhatsApp alerts.
 
 ---
 
@@ -79,18 +79,18 @@ if sale_cap[item] > 0:
 
 | Feature | Description |
 |---------|-------------|
-| 🔍 YOLOv8 Detection | Custom or pretrained model, retail-class filter |
+| 🔍 YOLOv8 Inference | Production-grade object detection, retail-class filter |
 | 📊 Shelf Grid | R×C interactive grid with hover tooltips |
-| 🧠 Frame Buffer | Majority voting, occlusion guard, stable grid |
-| 📸 Snapshot Comparison | Count-capped sales detection |
-| 📉 Sales Rate | Per-item rate tracking (units/hour) |
-| 🔔 Alerts | Low stock, out of stock, fast-moving items |
-| 🤖 Gemini Insights | AI-powered recommendations via Gemini API |
-| 📱 WhatsApp Reports | Daily automated reports via Twilio |
-| 🎮 Demo Mode | Simulated shelf for demos without camera |
-| ✏️ Sales Log | Editable table with audit history + undo |
-| 📈 Analytics | 7/14/30 day trends, bar, pie, area charts |
-| ☁️ Cloud Ready | Docker + Google Cloud Run deployment |
+| 🧠 Frame Consensus | Majority voting, occlusion guard, stable grid |
+| 📸 Smart Diff | Count-capped sales detection algorithm |
+| 📉 Velocity Tracking | Per-item sales rate monitoring |
+| 🔔 Smart Alerts | Low stock, out of stock, fast-moving items |
+| 🤖 AI Insights | Gemini-powered business intelligence |
+| 📱 Automated Reports | Daily enterprise summaries via WhatsApp |
+| 🧪 Simulation Mode | Virtual environment for calibration and testing |
+| ✏️ Audit Trail | Editable sales log with history + versioning |
+| 📈 Analytics Hub | 7/14/30 day predictive trends & distribution |
+| ☁️ Enterprise Cloud | Docker + Google Cloud Run architecture |
 
 ---
 

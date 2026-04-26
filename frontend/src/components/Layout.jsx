@@ -23,7 +23,7 @@ function Logo() {
       </div>
       <div className="min-w-0">
         <div className="font-display font-bold text-navy-500 leading-none text-base">ShelfSense</div>
-        <div className="text-[10px] text-slate-400 font-medium mt-0.5 leading-none">Inventory Intelligence</div>
+        <div className="text-[10px] text-slate-400 font-medium mt-0.5 leading-none">Enterprise Retail Intelligence</div>
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ function SystemStatus({ status }) {
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-slate-400">Mode</span>
               <span className={`text-[10px] font-semibold capitalize px-1.5 py-0.5 rounded-full ${status.mode === 'demo' ? 'bg-primary-50 text-primary-700' : 'bg-navy-100 text-navy-600'}`}>
-                {status.mode || '—'}
+                {status.mode === 'demo' ? 'Simulation' : 'Live'}
               </span>
             </div>
             <div className="flex items-center justify-between">
